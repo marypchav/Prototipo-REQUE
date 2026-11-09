@@ -1,0 +1,64 @@
+# ------------------------------------------------------------------
+# Dependencias: se reinstalan con "npm install", nunca se suben
+# ------------------------------------------------------------------
+node_modules/
+
+# ------------------------------------------------------------------
+# Variables de entorno: tienen la contraseña de la BD y el secreto
+# del JWT. Solo se sube la plantilla .env.example
+# ------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ------------------------------------------------------------------
+# Archivos que suben los usuarios (fotos de productos y comprobantes).
+# Se generan al usar la aplicación; se conserva solo la carpeta vacía
+# ------------------------------------------------------------------
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# ------------------------------------------------------------------
+# Logs
+# ------------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ------------------------------------------------------------------
+# Compilados y reportes
+# ------------------------------------------------------------------
+dist/
+build/
+coverage/
+
+# ------------------------------------------------------------------
+# Respaldos de SQL Server
+# ------------------------------------------------------------------
+*.bak
+*.mdf
+*.ldf
+
+# ------------------------------------------------------------------
+# Sistema operativo
+# ------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ------------------------------------------------------------------
+# Editores (se comparte solo la lista de extensiones recomendadas)
+# ------------------------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# ------------------------------------------------------------------
+# Imágenes de prueba de pruebas.http (cada uno pone las suyas)
+# ------------------------------------------------------------------
+backend/*.jpg
+backend/*.jpeg
+backend/*.png

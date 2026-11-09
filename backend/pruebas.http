@@ -1,0 +1,455 @@
+### =====================================================================
+### Pruebas de la API, en el mismo orden de la demostración.
+### Requiere la extensión "REST Client" de VS Code (Huachao Mao).
+### Haga clic en "Send Request" encima de cada petición, EN ORDEN:
+### varias toman ids de las respuestas anteriores.
+### La cookie de sesión se guarda sola después de cada login.
+###
+### Antes de empezar:
+###   - cambie @claveAdmin por la contraseña con la que generó el hash
+###   - ponga dos imágenes en la carpeta backend: prueba.jpg y comprobante.jpg
+### =====================================================================
+
+@base = http://localhost:3000/api
+@claveAdmin = LaContraseñaDeCarmen
+@correoCliente = ana.prueba@gmail.com
+@claveCliente = Prueba1234
+
+
+### =====================================================================
+### CU1 GESTIÓN DE INVENTARIO (administradora)
+### =====================================================================
+
+### 1. Catálogos para los formularios (público)
+GET {{base}}/catalogos
+
+### 2. Login de la administradora (GI001)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin@capanni.com",
+  "contrasena": "{{claveAdmin}}"
+}
+
+### 3. Login con contraseña incorrecta: 401, "Correo o contraseña incorrectos."
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin@capanni.com",
+  "contrasena": "incorrecta"
+}
+
+### 4. Volver a iniciar sesión (el 3 no la cierra, pero por si acaso)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin@capanni.com",
+  "contrasena": "{{claveAdmin}}"
+}
+
+### 5. Agregar producto (GI002). Talla S con 1 y M con 1
+# @name nuevoProducto
+POST {{base}}/admin/productos
+Content-Type: application/json
+
+{
+  "idCategoria": 1,
+  "nombre": "Blusa floreada",
+  "descripcion": "Blusa de algodón con estampado de flores",
+  "precio": 12500,
+  "tallas": [
+    { "idTalla": 2, "cantidad": 1 },
+    { "idTalla": 3, "cantidad": 1 }
+  ]
+}
+
+### 6. Precio inválido: 400, código 50008 (GI002 flujo alternativo)
+POST {{base}}/admin/productos
+Content-Type: application/json
+
+{
+  "idCategoria": 1,
+  "nombre": "Prueba",
+  "precio": -5,
+  "tallas": [{ "idTalla": 2, "cantidad": 1 }]
+}
+
+### 7. Subir foto (GI003). Requiere backend/prueba.jpg
+POST {{base}}/admin/productos/{{nuevoProducto.response.body.datos.idProducto}}/foto
+Content-Type: multipart/form-data; boundary=LIMITE
+
+--LIMITE
+Content-Disposition: form-data; name="foto"; filename="prueba.jpg"
+Content-Type: image/jpeg
+
+< ./prueba.jpg
+--LIMITE--
+
+### 8. Consultar inventario (GI004)
+GET {{base}}/admin/productos
+
+### 9. Buscar y filtrar (GI008)
+GET {{base}}/admin/productos?texto=blusa&talla=3
+
+### 10. Modificar producto (GI005)
+PUT {{base}}/admin/productos/{{nuevoProducto.response.body.datos.idProducto}}
+Content-Type: application/json
+
+{
+  "idCategoria": 1,
+  "nombre": "Blusa floreada manga corta",
+  "descripcion": "Blusa de algodón con estampado de flores",
+  "precio": 13000
+}
+
+### 11. Agregar la talla L con 2 unidades (GI007)
+PUT {{base}}/admin/productos/{{nuevoProducto.response.body.datos.idProducto}}/tallas/4
+Content-Type: application/json
+
+{
+  "cantidad": 2
+}
+
+### 12. Producto que se eliminará al final de la prueba (GI006)
+# @name productoBorrar
+POST {{base}}/admin/productos
+Content-Type: application/json
+
+{
+  "idCategoria": 2,
+  "nombre": "Vestido de prueba",
+  "precio": 20000,
+  "tallas": [{ "idTalla": 3, "cantidad": 1 }]
+}
+
+### 13. Eliminar producto (GI006)
+DELETE {{base}}/admin/productos/{{productoBorrar.response.body.datos.idProducto}}
+
+### 14. Cerrar sesión de la administradora
+POST {{base}}/auth/logout
+
+
+### =====================================================================
+### CU4 CUENTA Y DIRECCIONES (cliente)
+### =====================================================================
+
+### 15. Ruta de cliente sin sesión: 401, código 50030
+GET {{base}}/carrito
+
+### 16. Registrar cliente (GP001)
+POST {{base}}/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Ana Mora Solís",
+  "correo": "{{correoCliente}}",
+  "telefono": "88112233",
+  "contrasena": "{{claveCliente}}"
+}
+
+### 17. Mismo correo otra vez: 409, código 50005 (GP001 flujo alternativo)
+POST {{base}}/auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Otra Ana",
+  "correo": "{{correoCliente}}",
+  "telefono": "88112233",
+  "contrasena": "{{claveCliente}}"
+}
+
+### 18. Iniciar sesión como cliente (GP002)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "{{correoCliente}}",
+  "contrasena": "{{claveCliente}}"
+}
+
+### 19. El cliente no puede entrar al inventario: 403, código 50002
+GET {{base}}/admin/productos
+
+### 20. Agregar dirección (GP004)
+# @name nuevaDireccion
+POST {{base}}/direcciones
+Content-Type: application/json
+
+{
+  "idProvincia": 1,
+  "canton": "Desamparados",
+  "distrito": "San Miguel",
+  "otrasSenas": "200 m sur de la iglesia, casa verde"
+}
+
+### 21. Ver direcciones (GP003)
+GET {{base}}/direcciones
+
+### 22. Modificar dirección (GP005)
+PUT {{base}}/direcciones/{{nuevaDireccion.response.body.datos.idDireccion}}
+Content-Type: application/json
+
+{
+  "idProvincia": 1,
+  "canton": "Desamparados",
+  "distrito": "Higuito",
+  "otrasSenas": "Frente a la plaza, portón negro"
+}
+
+
+### =====================================================================
+### CU2 COMPRA DEL CLIENTE
+### =====================================================================
+
+### 23. Catálogo público (CP001 a CP005)
+GET {{base}}/catalogo
+
+### 24. Catálogo filtrado por categoría y tallas (CP006, CP007)
+GET {{base}}/catalogo?categoria=1&tallas=2,3
+
+### 25. Detalle del producto (CP008): de aquí sale el IdProductoTalla
+# @name detalle
+GET {{base}}/productos/{{nuevoProducto.response.body.datos.idProducto}}
+
+### 26. Agregar talla S al carrito (GP007)
+POST {{base}}/carrito
+Content-Type: application/json
+
+{
+  "idProductoTalla": {{detalle.response.body.datos.tallas[0].IdProductoTalla}},
+  "cantidad": 1
+}
+
+### 27. Pedir más de lo que hay: 409, código 50016 (GP007 flujo alternativo)
+POST {{base}}/carrito
+Content-Type: application/json
+
+{
+  "idProductoTalla": {{detalle.response.body.datos.tallas[0].IdProductoTalla}},
+  "cantidad": 5
+}
+
+### 28. Agregar talla L (tiene 2)
+POST {{base}}/carrito
+Content-Type: application/json
+
+{
+  "idProductoTalla": {{detalle.response.body.datos.tallas[2].IdProductoTalla}},
+  "cantidad": 1
+}
+
+### 29. Ver carrito con el costo calculado (GP008, GP020)
+# @name carrito
+GET {{base}}/carrito?metodoEntrega=1
+
+### 30. Cambiar cantidad de la primera línea (GP009)
+PUT {{base}}/carrito/{{carrito.response.body.datos.lineas[0].IdCarritoDetalle}}
+Content-Type: application/json
+
+{
+  "cantidad": 1
+}
+
+### 31. Efectivo con envío por Correos: 400, código 50021 (GP011)
+POST {{base}}/pedidos
+Content-Type: multipart/form-data; boundary=LIMITE
+
+--LIMITE
+Content-Disposition: form-data; name="idMetodoPago"
+
+2
+--LIMITE
+Content-Disposition: form-data; name="idMetodoEntrega"
+
+1
+--LIMITE
+Content-Disposition: form-data; name="idDireccion"
+
+{{nuevaDireccion.response.body.datos.idDireccion}}
+--LIMITE--
+
+### 32. SINPE sin comprobante: 400, código 50023 (GP013)
+POST {{base}}/pedidos
+Content-Type: multipart/form-data; boundary=LIMITE
+
+--LIMITE
+Content-Disposition: form-data; name="idMetodoPago"
+
+1
+--LIMITE
+Content-Disposition: form-data; name="idMetodoEntrega"
+
+1
+--LIMITE
+Content-Disposition: form-data; name="idDireccion"
+
+{{nuevaDireccion.response.body.datos.idDireccion}}
+--LIMITE--
+
+### 33. Confirmar orden con SINPE, envío por Correos y comprobante (GP014)
+###     Requiere backend/comprobante.jpg
+# @name pedido
+POST {{base}}/pedidos
+Content-Type: multipart/form-data; boundary=LIMITE
+
+--LIMITE
+Content-Disposition: form-data; name="idMetodoPago"
+
+1
+--LIMITE
+Content-Disposition: form-data; name="idMetodoEntrega"
+
+1
+--LIMITE
+Content-Disposition: form-data; name="idDireccion"
+
+{{nuevaDireccion.response.body.datos.idDireccion}}
+--LIMITE
+Content-Disposition: form-data; name="comprobante"; filename="comprobante.jpg"
+Content-Type: image/jpeg
+
+< ./comprobante.jpg
+--LIMITE--
+
+### 34. El carrito quedó vacío después de confirmar
+GET {{base}}/carrito
+
+### 35. Segundo pedido: talla M, efectivo y retiro en el taller (sin comprobante)
+POST {{base}}/carrito
+Content-Type: application/json
+
+{
+  "idProductoTalla": {{detalle.response.body.datos.tallas[1].IdProductoTalla}},
+  "cantidad": 1
+}
+
+###
+# @name pedidoEfectivo
+POST {{base}}/pedidos
+Content-Type: multipart/form-data; boundary=LIMITE
+
+--LIMITE
+Content-Disposition: form-data; name="idMetodoPago"
+
+2
+--LIMITE
+Content-Disposition: form-data; name="idMetodoEntrega"
+
+4
+--LIMITE--
+
+### 36. Mis pedidos (GP018)
+GET {{base}}/pedidos
+
+### 37. Cerrar sesión del cliente
+POST {{base}}/auth/logout
+
+
+### =====================================================================
+### CU3 ATENCIÓN DE PEDIDOS (administradora)
+### =====================================================================
+
+### 38. Login de la administradora
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin@capanni.com",
+  "contrasena": "{{claveAdmin}}"
+}
+
+### 39. Todos los pedidos (GP015)
+GET {{base}}/pedidos
+
+### 40. Solo los pendientes de confirmación
+GET {{base}}/pedidos?estado=1
+
+### 41. Detalle del pedido SINPE: productos, historial y siguientesEstados (GP015)
+GET {{base}}/pedidos/{{pedido.response.body.datos.IdPedido}}
+
+### 42. Ver el comprobante: devuelve la imagen (GP015)
+GET {{base}}/pedidos/{{pedido.response.body.datos.IdPedido}}/comprobante
+
+### 43. Saltarse estados (a Entregado): 409, código 50025 (GP017)
+PUT {{base}}/admin/pedidos/{{pedido.response.body.datos.IdPedido}}/estado
+Content-Type: application/json
+
+{
+  "idEstado": 6
+}
+
+### 44. Confirmar el pedido (GP016). En la terminal aparece el correo simulado (GP019)
+PUT {{base}}/admin/pedidos/{{pedido.response.body.datos.IdPedido}}/estado
+Content-Type: application/json
+
+{
+  "idEstado": 2
+}
+
+### 45. Pasar a "En preparación" (GP017)
+PUT {{base}}/admin/pedidos/{{pedido.response.body.datos.IdPedido}}/estado
+Content-Type: application/json
+
+{
+  "idEstado": 3
+}
+
+### 46. Pasar a "Enviado" (solo con envío)
+PUT {{base}}/admin/pedidos/{{pedido.response.body.datos.IdPedido}}/estado
+Content-Type: application/json
+
+{
+  "idEstado": 4
+}
+
+### 47. Rechazar el pedido en efectivo sin motivo: 400, código 50026 (GP016)
+PUT {{base}}/admin/pedidos/{{pedidoEfectivo.response.body.datos.IdPedido}}/estado
+Content-Type: application/json
+
+{
+  "idEstado": 7
+}
+
+### 48. Rechazar con motivo: la talla M vuelve al inventario (GP016 flujo alternativo)
+PUT {{base}}/admin/pedidos/{{pedidoEfectivo.response.body.datos.IdPedido}}/estado
+Content-Type: application/json
+
+{
+  "idEstado": 7,
+  "motivo": "La clienta pidió cancelar por teléfono."
+}
+
+### 49. Comprobante de un pedido en efectivo: 404 con el mensaje de pago en efectivo
+GET {{base}}/pedidos/{{pedidoEfectivo.response.body.datos.IdPedido}}/comprobante
+
+
+### =====================================================================
+### CU5 HISTORIALES
+### =====================================================================
+
+### 50. Historial de ventas (GI009): incluye el pedido SINPE, no el rechazado
+GET {{base}}/admin/ventas
+
+### 51. Historial de ventas con rango de fechas
+GET {{base}}/admin/ventas?desde=2026-11-01&hasta=2026-11-30
+
+### 52. Detalle del pedido como cliente: con el historial de estados (GP018)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "{{correoCliente}}",
+  "contrasena": "{{claveCliente}}"
+}
+
+###
+GET {{base}}/pedidos/{{pedido.response.body.datos.IdPedido}}
+
+### 53. Eliminar dirección (GP006). Se hace al final porque el pedido ya la usó
+DELETE {{base}}/direcciones/{{nuevaDireccion.response.body.datos.idDireccion}}
+
+### 54. Vaciar carrito vacío: 400, código 50017 (GP010)
+DELETE {{base}}/carrito
