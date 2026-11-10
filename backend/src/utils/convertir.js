@@ -34,8 +34,10 @@ function aFecha(valor) {
   if (typeof valor !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) {
     return null;
   }
-  const fecha = new Date(`${valor}T00:00:00Z`); // mssql trabaja las fechas en UTC
-  return Number.isNaN(fecha.getTime()) ? null : fecha;
+  // medianoche en hora local (la conexión usa useUTC: false)
+  const [anio, mes, dia] = valor.split('-').map(Number);
+  const fecha = new Date(anio, mes - 1, dia);
+  return fecha.getMonth() === mes - 1 ? fecha : null; // descarta "2026-02-31"
 }
 
 // une la lista de tallas a cada producto por IdProducto

@@ -31,6 +31,9 @@ module.exports = {
     options: {
       encrypt: process.env.DB_ENCRYPT === 'true',
       trustServerCertificate: true, // certificado autofirmado del SQL Server local
+      // la base guarda las fechas con GETDATE() (hora de Costa Rica): se leen
+      // como hora local y no como UTC, para que no se corran 6 horas
+      useUTC: false,
       ...(instancia ? { instanceName: instancia } : {}),
     },
     pool: {
