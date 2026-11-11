@@ -1,5 +1,4 @@
-# Normaliza los finales de línea para que Windows y Mac no generen
-# cambios falsos en cada archivo
+# Normaliza los finales de línea para que Windows cambios falsos en cada archivo
 * text=auto
 
 # Imágenes: nunca se tocan

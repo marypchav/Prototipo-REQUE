@@ -8,12 +8,6 @@ CP001 Visualizar catálogo, CP005 disponibilidad, CP006 filtrar por talla,
 CP007 filtrar por categoría. Es público (CP009): no recibe usuario.
 Los filtros se pueden combinar (CP007 restricción 3).
 
-Devuelve cuatro resultados:
-    1. productos (tarjetas), con Disponible = 1 si hay existencias
-    2. tallas con existencias de esos productos (CP003)
-    3. categorías que tienen productos, para el filtro (CP007 restricción 1)
-    4. tallas que tienen existencias, para el filtro (CP006 restricción 1)
-
 Ejemplo de ejecución:
     DECLARE @resultado INT;
 
@@ -135,7 +129,8 @@ BEGIN
         INNER JOIN dbo.Categoria AS C
             ON (C.IdCategoria = P.IdCategoria)
         ORDER BY Disponible DESC -- los agotados al final
-            , P.FechaCreacion DESC;
+            , P.FechaCreacion DESC -- lo más reciente primero
+            , P.IdProducto DESC; -- desempate: orden estable entre cargas iguales
 
         -- segundo resultado: tallas con existencias de cada producto (CP003)
         SELECT PT.IdProducto

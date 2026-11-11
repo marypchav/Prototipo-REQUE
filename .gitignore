@@ -5,7 +5,7 @@ node_modules/
 
 # ------------------------------------------------------------------
 # Variables de entorno: tienen la contraseña de la BD y el secreto
-# del JWT. Solo se sube la plantilla .env.example
+# del JWT
 # ------------------------------------------------------------------
 .env
 .env.*
@@ -13,7 +13,6 @@ node_modules/
 
 # ------------------------------------------------------------------
 # Archivos que suben los usuarios (fotos de productos y comprobantes).
-# Se generan al usar la aplicación; se conserva solo la carpeta vacía
 # ------------------------------------------------------------------
 backend/uploads/*
 !backend/uploads/.gitkeep
@@ -49,7 +48,7 @@ Thumbs.db
 desktop.ini
 
 # ------------------------------------------------------------------
-# Editores (se comparte solo la lista de extensiones recomendadas)
+# Editores 
 # ------------------------------------------------------------------
 .vscode/*
 !.vscode/extensions.json
