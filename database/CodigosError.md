@@ -4,7 +4,6 @@ Todos los SP devuelven `@outResultCode`: **0 = éxito**. Cualquier otro número 
 El backend traduce el código al mensaje que ve el usuario (`backend/src/codigosError.js`).
 
 | Código | Significado | Mensaje para la interfaz | HTTP | Origen |
-|---|---|---|---|---|
 | 50000 | Error inesperado (detalle en `dbo.dbError`) | Ocurrió un error inesperado. Intente de nuevo más tarde. | 500 | Todos los SP |
 | 50010 | Lista de tallas del filtro inválida | Revise las tallas ingresadas. | 400 | spListarCatalogo |
 | 50011 | Producto no existe o fue eliminado | Este producto ya no está disponible. | 404 | spObtenerProducto |
@@ -17,7 +16,6 @@ en esta tabla y en `codigosError.js`, sin repetir números.
 ## Procedimientos del módulo
 
 | Procedimiento | Requerimientos |
-|---|---|
 | spListarCatalogo | CP001 a CP007, CP009 |
 | spObtenerProducto | CP008, CP011 (el enlace compartido abre el detalle) |
 

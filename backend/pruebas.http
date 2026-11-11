@@ -1,14 +1,5 @@
-### =====================================================================
 ### Pruebas del módulo Catálogo de productos (CP001 a CP011).
-### Requiere la extensión "REST Client" de VS Code (Huachao Mao).
-### Haga clic en "Send Request" encima de cada petición.
-### Ninguna pide sesión: el catálogo es público (CP009).
-###
-### Los ids son los de database/03_DatosPrueba.sql sobre una base recién
-### instalada: 1 Blusa floreada, 4 Vestido de lino (agotado),
-### 8 Pañuelo de seda (sin foto), 9 Falda de prueba eliminada.
-### Si no coinciden, revise con: SELECT IdProducto, Nombre FROM dbo.Producto;
-### =====================================================================
+### Se usa con la extensión "REST Client" de vscode (Huachao Mao).
 
 @base = http://localhost:3000/api
 
