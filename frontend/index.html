@@ -3,56 +3,55 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Confecciones Capanni</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; color: #222; }
-    .estado { padding: 12px 16px; border-radius: 8px; background: #eee; }
-    .ok { background: #e3f4e6; color: #1d5e2a; }
-    .error { background: #fbe4e4; color: #8a1c1c; }
-    ul { padding-left: 20px; }
-    code { background: #f3f3f3; padding: 2px 6px; border-radius: 4px; }
-  </style>
+  <title>Catálogo | Confecciones Capanni</title>
+  <meta name="description" content="Catálogo en línea de Confecciones Capanni.">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
 </head>
 <body>
-  <!-- Página temporal: se reemplaza cuando empiece el frontend del catálogo -->
-  <h1>Confecciones Capanni</h1>
-  <p>Página temporal para comprobar que el módulo de catálogo responde.</p>
-  <p id="estado" class="estado">Revisando la conexión con la API...</p>
-  <ul id="lista"></ul>
-  <p>API: <a href="/api/catalogo">/api/catalogo</a> · <a href="/api/productos/1">/api/productos/1</a></p>
+  <header id="encabezado"></header>
+  <div id="avisoConexion" class="aviso-conexion" role="status" hidden>
+    Se perdió la conexión con el servidor. La información podría estar desactualizada; se refrescará sola al volver la conexión.
+  </div>
+
+  <main>
+    <section class="portada">
+      <div class="contenedor">
+        <h1>Catálogo</h1>
+        <p>Aquí va una frase corta de bienvenida de Confecciones Capanni.</p>
+      </div>
+    </section>
+
+    <div class="contenedor">
+      <!-- CP006 y CP007: filtros por categoría y talla, combinables -->
+      <section class="filtros" aria-label="Filtros del catálogo" id="filtros" hidden>
+        <div class="filtro-grupo">
+          <p class="filtro-titulo" id="tituloCategorias">Categoría</p>
+          <div class="fichas" id="fichasCategorias" role="group" aria-labelledby="tituloCategorias"></div>
+        </div>
+        <div class="filtro-grupo">
+          <p class="filtro-titulo" id="tituloTallas">Talla</p>
+          <div class="tallas-opciones" id="opcionesTallas" role="group" aria-labelledby="tituloTallas"></div>
+        </div>
+        <div class="filtros-pie">
+          <span id="conteo" aria-live="polite"></span>
+          <button type="button" class="boton boton-texto" id="limpiarFiltros" hidden>Limpiar filtros</button>
+        </div>
+      </section>
+
+      <p class="cargando" id="cargando">Cargando el catálogo…</p>
+      <div id="estadoCatalogo"></div>
+      <ul class="rejilla" id="rejilla" aria-label="Productos"></ul>
+    </div>
+  </main>
+
+  <footer id="pie"></footer>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const estado = document.getElementById('estado');
-    const lista = document.getElementById('lista');
-    const colones = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', maximumFractionDigits: 0 });
-
-    function cargar() {
-      fetch('/api/catalogo')
-        .then((respuesta) => respuesta.json())
-        .then((json) => {
-          if (!json.ok) throw new Error(json.mensaje);
-          const { productos } = json.datos;
-          estado.className = 'estado ok';
-          estado.textContent = `Servidor y base de datos conectados: ${productos.length} productos en el catálogo.`;
-          lista.innerHTML = '';
-          for (const producto of productos) {
-            const item = document.createElement('li');
-            const tallas = producto.tallas.map((talla) => talla.Talla).join(', ') || 'Sin tallas disponibles';
-            item.textContent = `${producto.Nombre}: ${colones.format(producto.Precio)} · ${producto.Disponible ? 'Disponible' : 'Agotado'} · ${tallas}`;
-            lista.appendChild(item);
-          }
-        })
-        .catch((error) => {
-          estado.className = 'estado error';
-          estado.textContent = `No se pudo leer el catálogo: ${error.message}`;
-        });
-    }
-
-    cargar();
-
-    // CP010: si otro módulo avisa un cambio, se vuelve a cargar sin recargar la página
-    io().on('catalogo:actualizado', cargar);
-  </script>
+  <script src="/js/comun.js"></script>
+  <script src="/js/catalogo.js"></script>
 </body>
 </html>

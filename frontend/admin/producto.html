@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Producto | Capanni</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <header id="encabezado"></header>
+
+  <main>
+    <div class="contenedor">
+      <nav class="migas" aria-label="Ruta">
+        <a href="/admin/inventario.html">← Volver al inventario</a>
+      </nav>
+
+      <!-- GI002 Agregar producto, GI003 Subir foto, GI005 Modificar producto -->
+      <div class="titulo-admin">
+        <div>
+          <h1 id="tituloForm">Agregar producto</h1>
+          <p>Los campos con <span class="obligatorio">*</span> son obligatorios.</p>
+        </div>
+      </div>
+
+      <p class="cargando" id="cargando">Cargando…</p>
+      <div id="estadoForm"></div>
+
+      <form class="form-producto tarjeta-form" id="formProducto" novalidate hidden>
+        <p class="mensaje mensaje-error" id="errorForm" role="alert" hidden></p>
+
+        <fieldset class="grupo-datos">
+          <legend>Datos del producto</legend>
+
+          <div class="campo">
+            <label for="nombre">Nombre <span class="obligatorio">*</span></label>
+            <input type="text" id="nombre" maxlength="100" required autocomplete="off">
+          </div>
+
+          <div class="dos-columnas">
+            <div class="campo">
+              <label for="categoria">Categoría <span class="obligatorio">*</span></label>
+              <select id="categoria" required>
+                <option value="">Seleccione una categoría</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="precio">Precio <span class="obligatorio">*</span></label>
+              <div class="con-prefijo">
+                <span aria-hidden="true">₡</span>
+                <input type="text" id="precio" inputmode="decimal" required autocomplete="off" placeholder="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" maxlength="500" placeholder="Tela, corte, cuidados…"></textarea>
+            <p class="ayuda"><span id="contadorDescripcion">0</span> de 500 caracteres</p>
+          </div>
+        </fieldset>
+
+        <fieldset class="grupo-tallas">
+          <legend>Existencias por talla</legend>
+          <p class="ayuda" id="ayudaTallas">Escriba cuántas unidades hay de cada talla. Deje en 0 las que no tiene.</p>
+          <div class="tallas-existencias" id="camposTallas" aria-describedby="ayudaTallas"></div>
+        </fieldset>
+
+        <div class="lado-foto">
+          <fieldset>
+            <legend>Foto</legend>
+            <div class="foto-vista" id="vistaFoto"></div>
+            <div class="foto-botones">
+              <button type="button" class="boton boton-secundario" data-abrir="fotoCamara">Tomar foto</button>
+              <button type="button" class="boton boton-secundario" data-abrir="fotoGaleria">Elegir de la galería</button>
+            </div>
+            <input type="file" id="fotoCamara" accept="image/png,image/jpeg" capture="environment" hidden>
+            <input type="file" id="fotoGaleria" accept="image/png,image/jpeg" hidden>
+            <p class="ayuda" id="ayudaFoto">PNG o JPG, máximo 5 MB.</p>
+            <button type="button" class="boton boton-texto" id="quitarFoto" hidden>Quitar la foto nueva</button>
+          </fieldset>
+        </div>
+
+        <div class="form-pie">
+          <a class="boton boton-secundario" href="/admin/inventario.html" id="cancelar">Cancelar</a>
+          <button type="submit" class="boton boton-principal" id="guardar">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer id="pie"></footer>
+
+  <script src="/js/comun.js"></script>
+  <script src="/js/form-producto.js"></script>
+</body>
+</html>

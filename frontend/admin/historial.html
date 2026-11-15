@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Historial de ventas | Capanni</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <header id="encabezado"></header>
+
+  <main>
+    <div class="contenedor">
+      <!-- GI009 Historial de productos vendidos.
+           Depende del módulo Gestión de pedidos: cuando exista su SP y su ruta,
+           aquí se pinta la tabla. Mientras tanto, el flujo alterno de la ERS. -->
+      <div class="titulo-admin">
+        <div>
+          <h1>Historial de ventas</h1>
+          <p>Productos vendidos en los pedidos confirmados.</p>
+        </div>
+      </div>
+
+      <div class="vacio" id="historialVacio">
+        <img class="monograma" src="/img/monograma.svg" alt="">
+        <h2>Aún no hay registros de ventas.</h2>
+        <p>Cuando se confirme el primer pedido, sus productos aparecerán aquí.</p>
+        <a class="boton boton-secundario" href="/admin/inventario.html">Ir al inventario</a>
+      </div>
+    </div>
+  </main>
+
+  <footer id="pie"></footer>
+
+  <script src="/js/comun.js"></script>
+  <script>exigirSesion('historial');</script>
+</body>
+</html>

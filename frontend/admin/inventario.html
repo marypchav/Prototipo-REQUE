@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventario | Capanni</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <header id="encabezado"></header>
+
+  <main>
+    <div class="contenedor">
+      <!-- GI004 Consultar productos -->
+      <div class="titulo-admin">
+        <div>
+          <h1>Inventario</h1>
+          <p id="resumen" aria-live="polite"></p>
+        </div>
+        <a class="boton boton-principal" href="/admin/producto.html">Agregar producto</a>
+      </div>
+
+      <!-- GI008 Buscar y filtrar -->
+      <form class="barra-busqueda" id="formBusqueda" role="search">
+        <div class="busqueda-fila">
+          <label for="busqueda" class="solo-lector">Buscar por nombre, descripción o categoría</label>
+          <input type="search" id="busqueda" placeholder="Buscar por nombre, descripción o categoría" maxlength="100">
+          <button type="submit" class="boton boton-principal">Buscar</button>
+        </div>
+        <div class="filtros-fila">
+          <div class="campo">
+            <label for="filtroCategoria">Categoría</label>
+            <select id="filtroCategoria">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="campo">
+            <span class="etiqueta" id="tituloFiltroTallas">Con existencias en</span>
+            <div class="tallas-opciones" id="filtroTallas" role="group" aria-labelledby="tituloFiltroTallas"></div>
+          </div>
+          <div class="acciones">
+            <button type="submit" class="boton boton-secundario">Aplicar filtros</button>
+            <button type="button" class="boton boton-texto" id="limpiar">Limpiar</button>
+          </div>
+        </div>
+      </form>
+
+      <p class="cargando" id="cargando">Cargando el inventario…</p>
+      <div id="estadoInventario"></div>
+      <ul class="inventario" id="listaInventario" aria-label="Productos del inventario"></ul>
+    </div>
+  </main>
+
+  <footer id="pie"></footer>
+
+  <!-- GI007 Modificar disponibilidad -->
+  <dialog id="dialogoExistencias" aria-labelledby="tituloExistencias">
+    <form method="dialog" class="dialogo-cuerpo" id="formExistencias" novalidate>
+      <h2 id="tituloExistencias">Modificar disponibilidad</h2>
+      <p id="nombreExistencias"></p>
+      <p class="mensaje mensaje-error" id="errorExistencias" role="alert" hidden></p>
+      <div class="tallas-existencias" id="camposExistencias"></div>
+      <p class="campo"><span class="ayuda">Una talla en 0 deja de mostrarse en el catálogo.</span></p>
+      <div class="dialogo-botones">
+        <button type="button" class="boton boton-secundario" data-cerrar>Cancelar</button>
+        <button type="submit" class="boton boton-principal" id="guardarExistencias">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- GI006 Eliminar producto -->
+  <dialog id="dialogoEliminar" aria-labelledby="tituloEliminar">
+    <div class="dialogo-cuerpo">
+      <h2 id="tituloEliminar">¿Confirma que desea eliminar este producto?</h2>
+      <p id="nombreEliminar"></p>
+      <p class="mensaje mensaje-error" id="errorEliminar" role="alert" hidden></p>
+      <div class="dialogo-botones">
+        <button type="button" class="boton boton-secundario" data-cerrar>No</button>
+        <button type="button" class="boton boton-peligro" id="confirmarEliminar">Sí</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/comun.js"></script>
+  <script src="/js/inventario.js"></script>
+</body>
+</html>

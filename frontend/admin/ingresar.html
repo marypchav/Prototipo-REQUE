@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión | Capanni</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <main class="ingreso">
+    <!-- GI001 Inicio de sesión como administradora -->
+    <form class="tarjeta-form" id="formIngreso" novalidate>
+      <a href="/" class="marca-grande" aria-label="Ir al catálogo">
+        <img src="/img/logo-capanni.svg" alt="Confecciones Capanni" width="120" height="131">
+      </a>
+      <h1>Iniciar sesión</h1>
+      <p class="subtitulo">Administración del inventario</p>
+
+      <p class="mensaje mensaje-error" id="errorIngreso" role="alert" hidden></p>
+
+      <div class="campo">
+        <label for="correo">Correo</label>
+        <input type="email" id="correo" name="correo" autocomplete="username" required>
+      </div>
+
+      <div class="campo">
+        <label for="contrasena">Contraseña</label>
+        <div class="clave-fila">
+          <input type="password" id="contrasena" name="contrasena" autocomplete="current-password" required>
+          <button type="button" class="boton boton-texto" id="verClave" aria-pressed="false">Mostrar</button>
+        </div>
+      </div>
+
+      <button type="submit" class="boton boton-principal boton-ancho" id="botonIngresar">Iniciar sesión</button>
+      <a href="/" style="text-align:center">Volver al catálogo</a>
+    </form>
+  </main>
+
+  <script src="/js/comun.js"></script>
+  <script src="/js/ingresar.js"></script>
+</body>
+</html>
