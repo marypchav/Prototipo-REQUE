@@ -5,8 +5,10 @@ El mismo servidor entrega la API (/api), las fotos de productos
 */
 const path = require('path');
 const express = require('express');
+const cookieParser = require('cookie-parser');
 
 const rutas = require('./rutas');
+const { leerSesion } = require('./sesion');
 const { rutaNoEncontrada, manejarErrores } = require('./manejarErrores');
 
 const RAIZ_BACKEND = path.join(__dirname, '..');
@@ -17,6 +19,8 @@ const app = express();
 app.disable('x-powered-by'); // no anunciar que el servidor es Express
 
 app.use(express.json({ limit: '100kb' }));
+app.use(cookieParser());
+app.use(leerSesion); // deja en req.usuario quién tiene la sesión abierta (GI001)
 
 // API
 app.use('/api', rutas);

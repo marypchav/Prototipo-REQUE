@@ -1,5 +1,14 @@
+### =====================================================================
 ### Pruebas del módulo Catálogo de productos (CP001 a CP011).
-### Se usa con la extensión "REST Client" de vscode (Huachao Mao).
+### Requiere la extensión "REST Client" de VS Code (Huachao Mao).
+### Haga clic en "Send Request" encima de cada petición.
+### Ninguna pide sesión: el catálogo es público (CP009).
+###
+### Los ids son los de database/03_DatosPrueba.sql sobre una base recién
+### instalada: 1 Blusa floreada, 4 Vestido de lino (agotado),
+### 8 Pañuelo de seda (sin foto), 9 Falda de prueba eliminada.
+### Si no coinciden, revise con: SELECT IdProducto, Nombre FROM dbo.Producto;
+### =====================================================================
 
 @base = http://localhost:3000/api
 
@@ -52,3 +61,164 @@ GET {{base}}/noexiste
 
 ### 14. Foto de muestra: debe verse la imagen en el panel de respuesta (CP002)
 GET http://localhost:3000/img/productos/blusa-floreada.jpg
+
+
+### =====================================================================
+### Módulo Gestión de inventario (GI001 a GI008). Solo la administradora.
+### Ejecutar EN ORDEN: varias usan el id del producto creado en la 24.
+### Antes: cambie @claveAdmin por la contraseña de Carmen y ponga una
+### imagen llamada prueba.jpg dentro de la carpeta backend.
+### =====================================================================
+
+@claveAdmin = Capanni2026
+
+### 15. Inventario sin sesión: 401, código 50033 (sección 2.4 de la ERS)
+GET {{base}}/admin/productos
+
+### 16. Contraseña incorrecta: 401, código 50020 (GI001 flujo alternativo)
+POST {{base}}/sesion
+Content-Type: application/json
+
+{
+  "correo": "admin@capanni.com",
+  "contrasena": "incorrecta"
+}
+
+### 17. Iniciar sesión como administradora (GI001)
+POST {{base}}/sesion
+Content-Type: application/json
+
+{
+  "correo": "admin@capanni.com",
+  "contrasena": "{{claveAdmin}}"
+}
+
+### 18. Quién tiene la sesión abierta
+GET {{base}}/sesion
+
+### 19. Categorías y tallas para el formulario
+GET {{base}}/admin/opciones-producto
+
+### 20. Inventario completo (GI004): incluye agotados y tallas en 0, y totalInventario
+GET {{base}}/admin/productos
+
+### 21. Buscar por palabra clave (GI008): compara nombre, descripción y categoría
+GET {{base}}/admin/productos?busqueda=blusa
+
+### 22. Filtros combinados: blusas con existencias en S o M (GI008)
+GET {{base}}/admin/productos?categoria=1&tallas=2,3
+
+### 23. Búsqueda sin resultados (GI008 alterno): "productos": [] y totalInventario > 0
+GET {{base}}/admin/productos?busqueda=zapato
+
+### 24. Agregar producto (GI002)
+# @name nuevoProducto
+POST {{base}}/admin/productos
+Content-Type: application/json
+
+{
+  "nombre": "Blusa de prueba GI",
+  "descripcion": "Producto creado desde pruebas.http",
+  "idCategoria": 1,
+  "precio": 12500,
+  "tallas": [
+    { "idTalla": 2, "cantidad": 3 },
+    { "idTalla": 3, "cantidad": 1 }
+  ]
+}
+
+### 25. Cantidad negativa: 400, código 50024 (GI002 flujo alternativo)
+POST {{base}}/admin/productos
+Content-Type: application/json
+
+{
+  "nombre": "Prueba",
+  "idCategoria": 1,
+  "precio": 12500,
+  "tallas": [{ "idTalla": 2, "cantidad": -1 }]
+}
+
+### 26. Precio en cero: 400, código 50022
+POST {{base}}/admin/productos
+Content-Type: application/json
+
+{
+  "nombre": "Prueba",
+  "idCategoria": 1,
+  "precio": 0,
+  "tallas": [{ "idTalla": 2, "cantidad": 1 }]
+}
+
+### 27. Todas las tallas en cero: 400, código 50026
+POST {{base}}/admin/productos
+Content-Type: application/json
+
+{
+  "nombre": "Prueba",
+  "idCategoria": 1,
+  "precio": 12500,
+  "tallas": [{ "idTalla": 2, "cantidad": 0 }]
+}
+
+### 28. Subir la foto (GI003). Requiere backend/prueba.jpg
+POST {{base}}/admin/productos/{{nuevoProducto.response.body.datos.idProducto}}/foto
+Content-Type: multipart/form-data; boundary=LIMITE
+
+--LIMITE
+Content-Disposition: form-data; name="foto"; filename="prueba.jpg"
+Content-Type: image/jpeg
+
+< ./prueba.jpg
+--LIMITE--
+
+### 29. Archivo que no es imagen: 400, código 50027 (GI003 flujo alternativo)
+POST {{base}}/admin/productos/{{nuevoProducto.response.body.datos.idProducto}}/foto
+Content-Type: multipart/form-data; boundary=LIMITE
+
+--LIMITE
+Content-Disposition: form-data; name="foto"; filename="package.json"
+Content-Type: application/json
+
+< ./package.json
+--LIMITE--
+
+### 30. Cargar el formulario de modificar (GI005): todas las tallas, en 0 las que no tiene
+GET {{base}}/admin/productos/{{nuevoProducto.response.body.datos.idProducto}}
+
+### 31. Modificar producto (GI005): S queda en 2, M en 0 (agotada) y se agrega L
+PUT {{base}}/admin/productos/{{nuevoProducto.response.body.datos.idProducto}}
+Content-Type: application/json
+
+{
+  "nombre": "Blusa de prueba GI modificada",
+  "descripcion": "Producto modificado desde pruebas.http",
+  "idCategoria": 1,
+  "precio": 13900,
+  "tallas": [
+    { "idTalla": 2, "cantidad": 2 },
+    { "idTalla": 4, "cantidad": 1 }
+  ]
+}
+
+### 32. Actualizar disponibilidad (GI007): solo cambia L a 5
+PUT {{base}}/admin/productos/{{nuevoProducto.response.body.datos.idProducto}}/existencias
+Content-Type: application/json
+
+{
+  "tallas": [{ "idTalla": 4, "cantidad": 5 }]
+}
+
+### 33. El catálogo público ya muestra los cambios: S con 2 y L con 5, sin M
+GET {{base}}/productos/{{nuevoProducto.response.body.datos.idProducto}}
+
+### 34. Eliminar producto (GI006)
+DELETE {{base}}/admin/productos/{{nuevoProducto.response.body.datos.idProducto}}
+
+### 35. Eliminarlo otra vez: 404, código 50011
+DELETE {{base}}/admin/productos/{{nuevoProducto.response.body.datos.idProducto}}
+
+### 36. Cerrar sesión
+DELETE {{base}}/sesion
+
+### 37. Ya sin sesión: 401, código 50033
+GET {{base}}/admin/productos
