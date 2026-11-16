@@ -96,6 +96,19 @@ function pintarProducto(p) {
           }
         </div>
 
+        ${
+          disponible && tallas.length
+            ? `<div class="campo campo-cantidad">
+                <label for="cantidad">Cantidad</label>
+                <div class="cantidad">
+                  <button type="button" data-paso="-1" aria-label="Quitar uno">−</button>
+                  <input type="text" id="cantidad" inputmode="numeric" value="1" autocomplete="off">
+                  <button type="button" data-paso="1" aria-label="Agregar uno">+</button>
+                </div>
+              </div>`
+            : ''
+        }
+
         <div class="detalle-acciones">
           <button type="button" class="boton boton-principal" id="agregarCarrito"
             ${disponible && conPrecio ? '' : 'disabled'}>
@@ -165,6 +178,16 @@ function conectarAcciones() {
     });
   });
 
+  // botones − y + de la cantidad
+  el.detalle.querySelectorAll('[data-paso]').forEach((boton) => {
+    boton.addEventListener('click', () => {
+      const campo = document.getElementById('cantidad');
+      const actual = parseInt(campo.value, 10) || 1;
+      campo.value = Math.max(1, actual + Number(boton.dataset.paso));
+      errorCarrito.hidden = true;
+    });
+  });
+
   document.getElementById('agregarCarrito').addEventListener('click', () => {
     if (!tallaElegida) {
       errorCarrito.textContent = 'Seleccione una talla.';
@@ -186,12 +209,53 @@ function conectarAcciones() {
 }
 
 /*
-Módulo Gestión de pedidos (GP007). CP009 alterno: sin sesión, se pide
-iniciar sesión o registrarse. Cuando exista la página del cliente, este es
-el único lugar que hay que cambiar.
+GP007 Agregar productos al carrito. Sin sesión de cliente se le lleva a
+iniciar sesión o registrarse y luego regresa a este producto (flujo alterno 1).
+El carrito no reserva: las existencias se garantizan al confirmar la orden.
 */
-function agregarAlCarrito(producto, idTalla) {
-  notificar('Para agregar productos al carrito debe iniciar sesión o registrarse. Esta opción estará disponible pronto.');
+async function agregarAlCarrito(producto, idTalla) {
+  const errorCarrito = document.getElementById('errorCarrito');
+  const boton = document.getElementById('agregarCarrito');
+  const talla = (producto.tallas ?? []).find((t) => t.IdTalla === idTalla);
+  const texto = (document.getElementById('cantidad')?.value ?? '1').trim();
+
+  const mostrar = (mensaje) => {
+    errorCarrito.textContent = mensaje;
+    errorCarrito.hidden = false;
+  };
+
+  // GP007 restricción 2: entero positivo y sin superar las existencias
+  if (!/^\d+$/.test(texto) || Number(texto) < 1) {
+    return mostrar('La cantidad debe ser un número entero mayor que cero.');
+  }
+  if (talla && Number(texto) > talla.Cantidad) {
+    return mostrar(talla.Cantidad === 1 ? 'Solo hay 1 disponible.' : `Solo hay ${talla.Cantidad} disponibles.`);
+  }
+
+  const usuario = await obtenerSesion();
+  if (!usuario) {
+    irAlIngresoCliente();
+    return;
+  }
+  if (usuario.esAdministrador) {
+    return mostrar('Con la cuenta de administración no se puede comprar. Inicie sesión como cliente.');
+  }
+
+  boton.disabled = true;
+  try {
+    const { mensaje, datos } = await api('/cliente/carrito', {
+      metodo: 'POST',
+      cuerpo: { idProductoTalla: talla.IdProductoTalla, cantidad: Number(texto) },
+    });
+    // GP007 paso 2.3: confirmación y el indicador del carrito al día
+    ponerIndicadorCarrito(datos.cantidadArticulos);
+    notificar(`${mensaje} Talla ${talla.Talla}, cantidad ${texto}.`);
+  } catch (error) {
+    if (error.codigo === 50033) return irAlIngresoCliente();
+    mostrar(error.message); // GP007 flujo alterno 2: agotado o supera existencias
+  } finally {
+    boton.disabled = false;
+  }
 }
 
 /* ---------------- CP011 Compartir ---------------- */

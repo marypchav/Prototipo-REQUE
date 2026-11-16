@@ -1,10 +1,16 @@
 /*
-GI003 Subir foto del producto, con multer.
-- Solo PNG o JPG (GI003 restricción 1)
-- Máximo 5 MB
-- Se guarda en backend/uploads/productos con un nombre único
-- En la base va la ruta relativa: "uploads/productos/archivo.jpg", y el
-  navegador la pide en http://localhost:3000/uploads/productos/archivo.jpg
+Imágenes que suben los usuarios, con multer. Solo PNG o JPG, máximo 5 MB,
+con un nombre único.
+
+GI003 Foto del producto (campo "foto"):
+  - Se guarda en backend/uploads/productos
+  - En la base va "uploads/productos/archivo.jpg", y el navegador la pide en
+    http://localhost:3000/uploads/productos/archivo.jpg (es pública)
+
+GP013 Comprobante de SINPE Móvil (campo "comprobante"):
+  - Se guarda en backend/uploads/comprobantes
+  - NO es pública: tiene datos de pago. Solo se entrega por la API, al dueño
+    del pedido o a la administradora (ver pedidos.controller.js)
 */
 const fs = require('fs');
 const path = require('path');
@@ -16,6 +22,7 @@ const MAX_MB = 5;
 const RAIZ_BACKEND = path.join(__dirname, '..');
 const RAIZ_UPLOADS = path.join(RAIZ_BACKEND, 'uploads');
 const CARPETA_PRODUCTOS = path.join(RAIZ_UPLOADS, 'productos');
+const CARPETA_COMPROBANTES = path.join(RAIZ_UPLOADS, 'comprobantes');
 
 const extensionPorTipo = {
   'image/png': '.png',
@@ -23,28 +30,34 @@ const extensionPorTipo = {
 };
 
 fs.mkdirSync(CARPETA_PRODUCTOS, { recursive: true });
+fs.mkdirSync(CARPETA_COMPROBANTES, { recursive: true });
 
-// middleware: recibe el archivo del campo "foto" del formulario
-const subirFotoProducto = multer({
-  storage: multer.diskStorage({
-    destination: CARPETA_PRODUCTOS,
-    filename: (req, archivo, cb) => {
-      const aleatorio = crypto.randomBytes(4).toString('hex');
-      cb(null, `${Date.now()}_${aleatorio}${extensionPorTipo[archivo.mimetype]}`);
+// middleware que recibe UNA imagen del campo indicado y la guarda en la carpeta
+function subirImagenA(carpeta, campo) {
+  return multer({
+    storage: multer.diskStorage({
+      destination: carpeta,
+      filename: (req, archivo, cb) => {
+        const aleatorio = crypto.randomBytes(4).toString('hex');
+        cb(null, `${Date.now()}_${aleatorio}${extensionPorTipo[archivo.mimetype]}`);
+      },
+    }),
+    limits: {
+      fileSize: MAX_MB * 1024 * 1024,
+      files: 1,
     },
-  }),
-  limits: {
-    fileSize: MAX_MB * 1024 * 1024,
-    files: 1,
-  },
-  fileFilter: (req, archivo, cb) => {
-    if (extensionPorTipo[archivo.mimetype]) {
-      cb(null, true);
-    } else {
-      cb(new ErrorApp(50027)); // formato no permitido (GI003 flujo alternativo)
-    }
-  },
-}).single('foto');
+    fileFilter: (req, archivo, cb) => {
+      if (extensionPorTipo[archivo.mimetype]) {
+        cb(null, true);
+      } else {
+        cb(new ErrorApp(50027)); // formato no permitido (GI003 y GP013 flujo alternativo)
+      }
+    },
+  }).single(campo);
+}
+
+const subirFotoProducto = subirImagenA(CARPETA_PRODUCTOS, 'foto');
+const subirComprobante = subirImagenA(CARPETA_COMPROBANTES, 'comprobante');
 
 // ruta que se guarda en la base para un archivo recién subido
 function rutaRelativa(archivo) {
@@ -67,4 +80,20 @@ async function borrarArchivo(ruta) {
   }
 }
 
-module.exports = { subirFotoProducto, rutaRelativa, borrarArchivo };
+// ruta absoluta de un comprobante guardado en la base, o null si la ruta no
+// está dentro de uploads/comprobantes (así nadie puede pedir otro archivo)
+function rutaAbsolutaComprobante(ruta) {
+  if (!ruta) {
+    return null;
+  }
+  const absoluta = path.resolve(RAIZ_BACKEND, ruta);
+  return absoluta.startsWith(CARPETA_COMPROBANTES + path.sep) ? absoluta : null;
+}
+
+module.exports = {
+  subirFotoProducto,
+  subirComprobante,
+  rutaRelativa,
+  borrarArchivo,
+  rutaAbsolutaComprobante,
+};

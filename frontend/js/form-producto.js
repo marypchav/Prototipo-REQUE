@@ -139,9 +139,7 @@ function elegirFoto(evento) {
   pintarVistaFoto();
 }
 
-document.querySelectorAll('[data-abrir]').forEach((boton) => {
-  boton.addEventListener('click', () => document.getElementById(boton.dataset.abrir).click());
-});
+// los botones [data-abrir] (Tomar foto, Elegir de la galería) los maneja comun.js
 el.fotoCamara.addEventListener('change', elegirFoto);
 el.fotoGaleria.addEventListener('change', elegirFoto);
 el.quitarFoto.addEventListener('click', () => {

@@ -30,12 +30,36 @@ const mensajes = {
   50034: 'No tiene permiso para realizar esta acción.',
   50035: 'La imagen no puede superar los 5 MB.',
   50036: 'Seleccione una imagen.',
+  50037: 'No se encontró el comprobante de pago.',
+
+  // módulo Gestión de pedidos
+  50040: 'El correo electrónico no tiene un formato válido.',
+  50041: 'Este correo ya está registrado. Puede iniciar sesión con él.',
+  50042: 'El teléfono debe tener entre 8 y 16 dígitos.',
+  50043: 'La contraseña debe tener al menos 8 caracteres.',
+  50044: 'La dirección seleccionada no existe.',
+  50045: 'La provincia seleccionada no existe.',
+  50046: 'La cantidad debe ser un número entero mayor que cero.',
+  50047: 'Esta talla está agotada.',
+  50048: 'La cantidad supera las existencias disponibles.',
+  50049: 'Este producto ya no está en su carrito.',
+  50050: 'Su carrito está vacío.',
+  50051: 'Seleccione un método de pago y un método de entrega.',
+  50052: 'Seleccione una dirección de envío.',
+  50053: 'El pago en efectivo está disponible solo para retiro en el taller.',
+  50054: 'Adjunte el comprobante de pago de SINPE Móvil.',
+  50055: 'Algunos productos ya no están disponibles. Revise su carrito.',
+  50056: 'El pedido no existe.',
+  50057: 'Ese cambio de estado no está permitido.',
+  50058: 'Escriba el motivo.',
+  50059: 'La notificación no existe.',
 };
 
 const estadosHttp = {
   401: [50020, 50033],
   403: [50034],
-  404: [50011, 50031],
+  404: [50011, 50031, 50037, 50044, 50049, 50056, 50059],
+  409: [50041, 50055, 50057], // chocan con el estado actual de los datos
   500: [50000],
 };
 

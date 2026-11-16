@@ -209,9 +209,7 @@ el.lista.addEventListener('click', (evento) => {
   if (boton.dataset.accion === 'eliminar') abrirEliminar(producto);
 });
 
-document.querySelectorAll('dialog [data-cerrar]').forEach((boton) => {
-  boton.addEventListener('click', () => boton.closest('dialog').close());
-});
+// los botones [data-cerrar] de los diálogos los maneja comun.js
 
 /* ---------------- GI007 Modificar disponibilidad ---------------- */
 

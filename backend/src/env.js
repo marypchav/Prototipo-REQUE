@@ -75,9 +75,20 @@ module.exports = {
     },
   },
 
-  // sesión de la administradora (GI001)
+  // sesión de la administradora (GI001) y del cliente (GP002)
   jwt: {
     secreto: process.env.JWT_SECRET,
     horas: Number(process.env.JWT_HORAS) || 8,
+  },
+
+  // correos de cambio de estado de pedido (GP019). Opcional: sin SMTP_HOST
+  // los correos quedan en cola y no se envían
+  correo: {
+    host: (process.env.SMTP_HOST || '').trim(),
+    puerto: Number(process.env.SMTP_PORT) || 587,
+    seguro: process.env.SMTP_SEGURO === 'true',
+    usuario: (process.env.SMTP_USUARIO || '').trim(),
+    clave: process.env.SMTP_CLAVE || '',
+    remitente: (process.env.SMTP_REMITENTE || process.env.SMTP_USUARIO || '').trim(),
   },
 };

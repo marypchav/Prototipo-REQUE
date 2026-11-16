@@ -59,6 +59,8 @@ async function api(ruta, { metodo = 'GET', cuerpo, formulario } = {}) {
     // sesión vencida o inexistente en una página de administración
     if (error.codigo === 50033 && location.pathname.startsWith('/admin/')) {
       irAlIngreso();
+    } else if (error.codigo === 50033 && document.body?.dataset.requiere === 'cliente') {
+      irAlIngresoCliente(); // la sesión del cliente se venció
     }
     throw error;
   }
@@ -83,6 +85,17 @@ function precioValido(precio) {
 
 function formatearPrecio(precio) {
   return precioValido(precio) ? formatoColones.format(Number(precio)) : 'Precio no disponible';
+}
+
+// "2026-11-16T19:14:59.873Z" -> "16 nov 2026, 1:14 p. m." en hora de Costa Rica
+const formatoFecha = new Intl.DateTimeFormat('es-CR', { dateStyle: 'medium', timeStyle: 'short' });
+const formatoSoloFecha = new Intl.DateTimeFormat('es-CR', { dateStyle: 'medium' });
+
+function formatearFecha(valor, { conHora = true } = {}) {
+  if (!valor) return '';
+  const fecha = new Date(valor);
+  if (Number.isNaN(fecha.getTime())) return '';
+  return (conHora ? formatoFecha : formatoSoloFecha).format(fecha);
 }
 
 // evita que un nombre con < o & rompa el HTML
@@ -196,7 +209,80 @@ const DATOS_TIENDA = {
   facebook: 'Aquí va la página de Facebook',
 };
 
-function pintarEncabezadoPublico(actual) {
+/* ---------------- Sesión (administradora o cliente) ---------------- */
+
+let promesaSesion = null;
+
+// quién tiene la sesión abierta: { idUsuario, nombre, esAdministrador } o null.
+// Se pide una sola vez por página
+function obtenerSesion() {
+  if (!promesaSesion) {
+    promesaSesion = api('/sesion')
+      .then(({ datos }) => datos || null)
+      .catch(() => null);
+  }
+  return promesaSesion;
+}
+
+function urlActual() {
+  return location.pathname + location.search;
+}
+
+function irAlIngresoCliente() {
+  location.replace('/cuenta/ingresar.html?volver=' + encodeURIComponent(urlActual()));
+}
+
+// Las páginas del cliente (carrito, orden, direcciones, pedidos) la llaman al
+// cargar. Sin sesión de cliente van a iniciar sesión y luego regresan (GP002 paso 4.2)
+async function exigirCliente(actual) {
+  const usuario = await obtenerSesion();
+  if (!usuario || usuario.esAdministrador) {
+    irAlIngresoCliente();
+    return null;
+  }
+  pintarEncabezadoPublico(actual);
+  pintarPie();
+  mostrarAvisoPendiente();
+  return usuario;
+}
+
+async function cerrarSesionCliente() {
+  try {
+    await api('/sesion', { metodo: 'DELETE' });
+  } catch {
+    /* aunque falle, se sale */
+  }
+  location.assign('/');
+}
+
+/* ---------------- Indicador del carrito (GP007 paso 2.3) ---------------- */
+
+function ponerIndicadorCarrito(cantidad) {
+  const indicador = document.getElementById('indicadorCarrito');
+  if (!indicador) return;
+  const n = Number(cantidad) || 0;
+  indicador.textContent = n > 99 ? '99+' : String(n);
+  indicador.hidden = n === 0;
+  const enlace = indicador.closest('a');
+  enlace?.setAttribute('aria-label', n === 1 ? 'Carrito, 1 producto' : `Carrito, ${n} productos`);
+}
+
+async function actualizarIndicadorCarrito() {
+  try {
+    const { datos } = await api('/cliente/carrito');
+    ponerIndicadorCarrito(datos.resumen?.CantidadArticulos);
+  } catch {
+    /* sin sesión de cliente: el indicador no se muestra */
+  }
+}
+
+/* ---------------- Encabezado público ---------------- */
+
+function marcaActual(actual, nombre) {
+  return actual === nombre ? 'aria-current="page"' : '';
+}
+
+async function pintarEncabezadoPublico(actual) {
   const encabezado = document.getElementById('encabezado');
   if (!encabezado) return;
   encabezado.className = 'encabezado';
@@ -206,10 +292,41 @@ function pintarEncabezadoPublico(actual) {
         <img src="/img/logo-capanni.svg" alt="Confecciones Capanni" width="53" height="58">
       </a>
       <nav class="menu" aria-label="Principal">
-        <a href="/" ${actual === 'catalogo' ? 'aria-current="page"' : ''}>Catálogo</a>
-        <a href="#contacto">Contacto</a>
+        <a href="/" ${marcaActual(actual, 'catalogo')}>Catálogo</a>
+        <a href="/carrito.html" class="enlace-carrito" ${marcaActual(actual, 'carrito')} aria-label="Carrito">
+          Carrito <span class="indicador" id="indicadorCarrito" hidden>0</span>
+        </a>
+        <span id="zonaCuenta"></span>
       </nav>
     </div>`;
+
+  const usuario = await obtenerSesion();
+  const zona = document.getElementById('zonaCuenta');
+  if (!zona) return;
+
+  if (!usuario) {
+    zona.outerHTML = `<a href="/cuenta/ingresar.html?volver=${encodeURIComponent(urlActual())}" ${marcaActual(actual, 'ingresar')}>Iniciar sesión</a>`;
+    return;
+  }
+
+  if (usuario.esAdministrador) {
+    zona.outerHTML = '<a href="/admin/inventario.html">Administración</a>';
+    return;
+  }
+
+  // cliente: menú de su cuenta (GP002 postcondición 2)
+  const primerNombre = String(usuario.nombre || '').split(' ')[0];
+  zona.outerHTML = `
+    <details class="menu-cuenta">
+      <summary>Hola, ${escapar(primerNombre)}</summary>
+      <div class="menu-cuenta-lista">
+        <a href="/cuenta/pedidos.html" ${marcaActual(actual, 'pedidos')}>Mis pedidos</a>
+        <a href="/cuenta/direcciones.html" ${marcaActual(actual, 'direcciones')}>Mis direcciones</a>
+        <button type="button" class="boton-texto" id="salirCliente">Cerrar sesión</button>
+      </div>
+    </details>`;
+  document.getElementById('salirCliente').addEventListener('click', cerrarSesionCliente);
+  actualizarIndicadorCarrito();
 }
 
 function pintarEncabezadoAdmin(actual, usuario) {
@@ -223,6 +340,7 @@ function pintarEncabezadoAdmin(actual, usuario) {
       </a>
       <nav class="menu" aria-label="Administración">
         <a href="/admin/inventario.html" ${actual === 'inventario' ? 'aria-current="page"' : ''}>Inventario</a>
+        <a href="/admin/pedidos.html" ${actual === 'pedidos' ? 'aria-current="page"' : ''}>Pedidos</a>
         <a href="/admin/historial.html" ${actual === 'historial' ? 'aria-current="page"' : ''}>Historial de ventas</a>
         <a href="/" target="_blank" rel="noopener">Ver catálogo</a>
         ${usuario ? `<span class="usuario">${escapar(usuario.nombre || usuario.correo || '')}</span>` : ''}
@@ -283,7 +401,8 @@ async function exigirSesion(actual) {
   } catch {
     usuario = null;
   }
-  if (!usuario) {
+  // una sesión de cliente no sirve para administrar (GP002 restricción 3)
+  if (!usuario || !usuario.esAdministrador) {
     irAlIngreso();
     return null;
   }
@@ -335,4 +454,35 @@ function escucharCatalogo(alCambiar, alReconectar) {
   window.addEventListener('offline', () => {
     if (aviso) aviso.hidden = false;
   });
+}
+
+/* ---------------- Utilidades de formularios ---------------- */
+
+// botón "Mostrar / Ocultar" de las contraseñas: <button data-ver-clave="idDelCampo">
+document.addEventListener('click', (evento) => {
+  const boton = evento.target.closest('[data-ver-clave]');
+  if (!boton) return;
+  const campo = document.getElementById(boton.dataset.verClave);
+  const mostrar = campo.type === 'password';
+  campo.type = mostrar ? 'text' : 'password';
+  boton.textContent = mostrar ? 'Ocultar' : 'Mostrar';
+  boton.setAttribute('aria-pressed', String(mostrar));
+});
+
+// botones "No" o "Cancelar" de cualquier ventana de diálogo: <button data-cerrar>
+document.addEventListener('click', (evento) => {
+  const boton = evento.target.closest('dialog [data-cerrar]');
+  if (boton) boton.closest('dialog').close();
+});
+
+// botones que abren un <input type="file"> escondido: <button data-abrir="idDelInput">
+document.addEventListener('click', (evento) => {
+  const boton = evento.target.closest('[data-abrir]');
+  if (boton) document.getElementById(boton.dataset.abrir)?.click();
+});
+
+// solo se acepta volver a una página de este mismo sitio (nunca a otro dominio)
+function destinoSeguro(valor, porDefecto = '/') {
+  const texto = String(valor || '');
+  return /^\/(?!\/)[\w\-./?=&%]*$/.test(texto) ? texto : porDefecto;
 }

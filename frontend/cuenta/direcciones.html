@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mis direcciones | Confecciones Capanni</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body data-requiere="cliente">
+  <header id="encabezado"></header>
+
+  <main>
+    <div class="contenedor angosto">
+      <!-- GP003 a GP006 Direcciones de envío -->
+      <div class="titulo-admin">
+        <div>
+          <h1>Mis direcciones</h1>
+          <p>Las direcciones a las que podemos enviar sus pedidos.</p>
+        </div>
+        <button type="button" class="boton boton-principal" id="agregarDireccion">Agregar dirección</button>
+      </div>
+
+      <p class="mensaje mensaje-aviso" id="avisoVolver" hidden></p>
+      <p class="cargando" id="cargando">Cargando…</p>
+      <div id="estadoDirecciones"></div>
+      <ul class="lista-direcciones" id="listaDirecciones" aria-label="Direcciones"></ul>
+    </div>
+  </main>
+
+  <dialog id="dialogoDireccion" aria-labelledby="tituloDireccion">
+    <form class="dialogo-cuerpo" id="formDireccion" novalidate>
+      <h2 id="tituloDireccion">Agregar dirección</h2>
+      <p class="mensaje mensaje-error" id="errorDireccion" role="alert" hidden></p>
+      <div class="campo">
+        <label for="provincia">Provincia</label>
+        <select id="provincia" required>
+          <option value="">Seleccione una provincia</option>
+        </select>
+      </div>
+      <div class="dos-columnas">
+        <div class="campo">
+          <label for="canton">Cantón</label>
+          <input type="text" id="canton" maxlength="64" required autocomplete="address-level2">
+        </div>
+        <div class="campo">
+          <label for="distrito">Distrito</label>
+          <input type="text" id="distrito" maxlength="64" required autocomplete="address-level3">
+        </div>
+      </div>
+      <div class="campo">
+        <label for="otrasSenas">Otras señas</label>
+        <textarea id="otrasSenas" maxlength="256" required placeholder="Por ejemplo: 100 m norte de la iglesia, casa azul"></textarea>
+      </div>
+      <div class="dialogo-botones">
+        <button type="button" class="boton boton-secundario" data-cerrar>Cancelar</button>
+        <button type="submit" class="boton boton-principal" id="guardarDireccion">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dialogoEliminar" aria-labelledby="tituloEliminarDir">
+    <div class="dialogo-cuerpo">
+      <h2 id="tituloEliminarDir">¿Confirma que desea eliminar esta dirección?</h2>
+      <p id="textoEliminar"></p>
+      <p class="mensaje mensaje-error" id="errorEliminar" role="alert" hidden></p>
+      <div class="dialogo-botones">
+        <button type="button" class="boton boton-secundario" data-cerrar>No</button>
+        <button type="button" class="boton boton-peligro" id="confirmarEliminar">Sí</button>
+      </div>
+    </div>
+  </dialog>
+
+  <footer id="pie"></footer>
+
+  <script src="/js/comun.js"></script>
+  <script src="/js/direcciones.js"></script>
+</body>
+</html>

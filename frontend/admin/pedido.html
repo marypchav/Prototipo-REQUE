@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pedido | Capanni</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <header id="encabezado"></header>
+
+  <main>
+    <div class="contenedor angosto">
+      <nav class="migas" aria-label="Ruta">
+        <a href="/admin/pedidos.html" id="volverPedidos">← Volver a pedidos</a>
+      </nav>
+      <p class="cargando" id="cargando">Cargando el pedido…</p>
+      <div id="detallePedido"></div>
+    </div>
+  </main>
+
+  <!-- GP016 / GP017: confirmación y motivo -->
+  <dialog id="dialogoEstado" aria-labelledby="tituloEstado">
+    <form class="dialogo-cuerpo" id="formEstado" novalidate>
+      <h2 id="tituloEstado"></h2>
+      <p id="textoEstado"></p>
+      <p class="mensaje mensaje-error" id="errorEstado" role="alert" hidden></p>
+      <div class="campo" id="campoMotivo" hidden>
+        <label for="motivo">Motivo</label>
+        <textarea id="motivo" maxlength="300" placeholder="El cliente lo verá en su pedido y en el correo."></textarea>
+      </div>
+      <div class="dialogo-botones">
+        <button type="button" class="boton boton-secundario" data-cerrar>No</button>
+        <button type="submit" class="boton boton-principal" id="confirmarEstado">Sí</button>
+      </div>
+    </form>
+  </dialog>
+
+  <footer id="pie"></footer>
+
+  <script src="/js/comun.js"></script>
+  <script src="/js/pedido-detalle.js"></script>
+  <script src="/js/admin-pedido.js"></script>
+</body>
+</html>

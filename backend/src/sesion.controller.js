@@ -1,5 +1,7 @@
 /*
 GI001 Inicio de sesión como administrador, cierre de sesión y "quién soy".
+El cierre de sesión y "quién soy" sirven también para el cliente (GP002);
+su inicio de sesión está en clientes.controller.js.
 */
 const bcrypt = require('bcryptjs');
 const { ejecutarSP, sql } = require('./ejecutarSP');
@@ -32,7 +34,7 @@ async function iniciar(req, res) {
     throw new ErrorApp(50020);
   }
 
-  const sesion = crearSesion(res, usuario);
+  const sesion = crearSesion(res, usuario, { esAdministrador: true });
   res.json({ ok: true, datos: sesion });
 }
 

@@ -64,10 +64,11 @@ form.addEventListener('submit', async (evento) => {
   }
 });
 
-// si ya tiene la sesión abierta, pasa directo
+// si ya tiene la sesión de administradora abierta, pasa directo
+// (con una sesión de cliente se queda aquí para iniciar como administradora)
 api('/sesion')
   .then(({ datos }) => {
-    if (datos) location.replace(paginaDeDestino());
+    if (datos?.esAdministrador) location.replace(paginaDeDestino());
   })
   .catch(() => {});
 

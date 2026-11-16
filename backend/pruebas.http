@@ -222,3 +222,290 @@ DELETE {{base}}/sesion
 
 ### 37. Ya sin sesión: 401, código 50033
 GET {{base}}/admin/productos
+
+
+### =====================================================================
+### Módulo Gestión de pedidos (GP001 a GP020).
+### Ejecutar EN ORDEN, después de instalar database/04_SP_Pedidos.sql.
+### Antes: ponga una imagen llamada prueba.jpg dentro de la carpeta backend
+### (la misma de la prueba 28). Use productos con existencias (por ejemplo el 1).
+### La sesión viaja en la cookie: al iniciar como cliente se reemplaza la de
+### la administradora, y al revés.
+### =====================================================================
+
+@correoCliente = cliente.prueba@correo.com
+@claveCliente = Cliente2026
+
+### 38. Registrar cliente (GP001). La segunda vez da 409, código 50041: es lo correcto
+POST {{base}}/clientes
+Content-Type: application/json
+
+{
+  "nombre": "Cliente de Prueba",
+  "correo": "{{correoCliente}}",
+  "telefono": "8888-1234",
+  "contrasena": "{{claveCliente}}"
+}
+
+### 39. Contraseña corta: 400, código 50043 (GP001 restricción 3)
+POST {{base}}/clientes
+Content-Type: application/json
+
+{
+  "nombre": "Otra",
+  "correo": "otra@correo.com",
+  "telefono": "88881234",
+  "contrasena": "corta"
+}
+
+### 40. Correo con formato inválido: 400, código 50040
+POST {{base}}/clientes
+Content-Type: application/json
+
+{
+  "nombre": "Otra",
+  "correo": "otra-correo.com",
+  "telefono": "88881234",
+  "contrasena": "Segura2026"
+}
+
+### 41. Carrito sin sesión: 401, código 50033 (GP007 flujo alterno 1)
+GET {{base}}/cliente/carrito
+
+### 42. Contraseña incorrecta: 401, código 50020 (GP002 flujo alterno)
+POST {{base}}/clientes/sesion
+Content-Type: application/json
+
+{
+  "correo": "{{correoCliente}}",
+  "contrasena": "incorrecta"
+}
+
+### 43. La administradora no entra como cliente: 401, código 50020 (GP002 restricción 3)
+POST {{base}}/clientes/sesion
+Content-Type: application/json
+
+{
+  "correo": "admin@capanni.com",
+  "contrasena": "{{claveAdmin}}"
+}
+
+### 44. Iniciar sesión como cliente (GP002): "esAdministrador": false
+POST {{base}}/clientes/sesion
+Content-Type: application/json
+
+{
+  "correo": "{{correoCliente}}",
+  "contrasena": "{{claveCliente}}"
+}
+
+### 45. Un cliente no entra al inventario: 403, código 50034
+GET {{base}}/admin/productos
+
+### 46. Agregar dirección (GP004)
+# @name nuevaDireccion
+POST {{base}}/cliente/direcciones
+Content-Type: application/json
+
+{
+  "idProvincia": 1,
+  "canton": "Montes de Oca",
+  "distrito": "San Pedro",
+  "otrasSenas": "100 m norte de la iglesia, casa azul"
+}
+
+### 47. Dirección con un campo vacío: 400, código 50021 (GP004)
+POST {{base}}/cliente/direcciones
+Content-Type: application/json
+
+{
+  "idProvincia": 1,
+  "canton": "",
+  "distrito": "San Pedro",
+  "otrasSenas": "Casa azul"
+}
+
+### 48. Ver direcciones y provincias (GP003)
+GET {{base}}/cliente/direcciones
+
+### 49. Modificar la dirección (GP005)
+PUT {{base}}/cliente/direcciones/{{nuevaDireccion.response.body.datos.idDireccion}}
+Content-Type: application/json
+
+{
+  "idProvincia": 1,
+  "canton": "Montes de Oca",
+  "distrito": "San Pedro",
+  "otrasSenas": "200 m norte de la iglesia, casa azul de dos pisos"
+}
+
+### 50. Detalle del producto 1 para sacar el IdProductoTalla de su primera talla
+# @name producto1
+GET {{base}}/productos/1
+
+### 51. Agregar al carrito (GP007): devuelve cantidadArticulos
+POST {{base}}/cliente/carrito
+Content-Type: application/json
+
+{
+  "idProductoTalla": {{producto1.response.body.$.datos.tallas[0].IdProductoTalla}},
+  "cantidad": 1
+}
+
+### 52. Más de las existencias: 400, código 50048 "Solo hay N disponibles y ya tiene 1 en su carrito."
+POST {{base}}/cliente/carrito
+Content-Type: application/json
+
+{
+  "idProductoTalla": {{producto1.response.body.$.datos.tallas[0].IdProductoTalla}},
+  "cantidad": 999
+}
+
+### 53. Cantidad con decimales: 400, código 50046
+POST {{base}}/cliente/carrito
+Content-Type: application/json
+
+{
+  "idProductoTalla": {{producto1.response.body.$.datos.tallas[0].IdProductoTalla}},
+  "cantidad": 1.5
+}
+
+### 54. Ver carrito con envío por Correos (GP008, GP020): "EnvioACoordinar": true
+# @name verCarrito
+GET {{base}}/cliente/carrito?metodoEntrega=1
+
+### 55. Cambiar la cantidad de la línea a 1 (GP009): responde el carrito recalculado
+PUT {{base}}/cliente/carrito/{{verCarrito.response.body.$.datos.lineas[0].IdCarritoDetalle}}
+Content-Type: application/json
+
+{
+  "cantidad": 1
+}
+
+### 56. Opciones de la orden (GP011, GP012): entrega, pago y direcciones
+GET {{base}}/cliente/orden/opciones
+
+### 57. Efectivo con envío: 400, código 50053 (GP011 restricción 2)
+POST {{base}}/cliente/pedidos
+Content-Type: application/json
+
+{
+  "idMetodoPago": 2,
+  "idMetodoEntrega": 1,
+  "idDireccion": {{nuevaDireccion.response.body.datos.idDireccion}}
+}
+
+### 58. SINPE sin comprobante: 400, código 50054 (GP013 restricción 2)
+POST {{base}}/cliente/pedidos
+Content-Type: application/json
+
+{
+  "idMetodoPago": 1,
+  "idMetodoEntrega": 4
+}
+
+### 59. Confirmar orden con SINPE, Correos y comprobante (GP013, GP014)
+###     Responde el número de pedido; el catálogo baja las existencias
+# @name nuevaOrden
+POST {{base}}/cliente/pedidos
+Content-Type: multipart/form-data; boundary=LIMITE
+
+--LIMITE
+Content-Disposition: form-data; name="idMetodoPago"
+
+1
+--LIMITE
+Content-Disposition: form-data; name="idMetodoEntrega"
+
+1
+--LIMITE
+Content-Disposition: form-data; name="idDireccion"
+
+{{nuevaDireccion.response.body.datos.idDireccion}}
+--LIMITE
+Content-Disposition: form-data; name="comprobante"; filename="prueba.jpg"
+Content-Type: image/jpeg
+
+< ./prueba.jpg
+--LIMITE--
+
+### 60. El carrito quedó vacío (GP014 paso 2.4): "lineas": []
+GET {{base}}/cliente/carrito
+
+### 61. Confirmar con el carrito vacío: 400, código 50050
+POST {{base}}/cliente/pedidos
+Content-Type: application/json
+
+{
+  "idMetodoPago": 2,
+  "idMetodoEntrega": 4
+}
+
+### 62. Historial de pedidos del cliente (GP018)
+GET {{base}}/cliente/pedidos
+
+### 63. Detalle del pedido: "urlComprobante" sin la ruta del archivo (GP018)
+GET {{base}}/cliente/pedidos/{{nuevaOrden.response.body.datos.idPedido}}
+
+### 64. Su comprobante: debe verse la imagen
+GET {{base}}/cliente/pedidos/{{nuevaOrden.response.body.datos.idPedido}}/comprobante
+
+### 65. El comprobante NO es público: 404 (no hay ruta /uploads/comprobantes)
+GET http://localhost:3000/uploads/comprobantes/
+
+### 66. Eliminar la dirección (GP006). El pedido conserva la suya en texto
+DELETE {{base}}/cliente/direcciones/{{nuevaDireccion.response.body.datos.idDireccion}}
+
+### 67. Iniciar sesión otra vez como administradora (reemplaza la del cliente)
+POST {{base}}/sesion
+Content-Type: application/json
+
+{
+  "correo": "admin@capanni.com",
+  "contrasena": "{{claveAdmin}}"
+}
+
+### 68. Pedidos (GP015). Filtrar pendientes: ?estado=1
+GET {{base}}/admin/pedidos
+
+### 69. Detalle con "estadosSiguientes": Confirmado y Rechazado (GP015, GP016)
+GET {{base}}/admin/pedidos/{{nuevaOrden.response.body.datos.idPedido}}
+
+### 70. Ver el comprobante como administradora (GP015)
+GET {{base}}/admin/pedidos/{{nuevaOrden.response.body.datos.idPedido}}/comprobante
+
+### 71. Rechazar sin motivo: 400, código 50058 (GP016 restricción 3)
+PUT {{base}}/admin/pedidos/{{nuevaOrden.response.body.datos.idPedido}}/estado
+Content-Type: application/json
+
+{
+  "idEstado": 7
+}
+
+### 72. Saltar a Entregado: 409, código 50057 (GP017: solo transiciones válidas)
+PUT {{base}}/admin/pedidos/{{nuevaOrden.response.body.datos.idPedido}}/estado
+Content-Type: application/json
+
+{
+  "idEstado": 6
+}
+
+### 73. Confirmar el pedido (GP016). Deja el correo en cola (GP019)
+PUT {{base}}/admin/pedidos/{{nuevaOrden.response.body.datos.idPedido}}/estado
+Content-Type: application/json
+
+{
+  "idEstado": 2
+}
+
+### 74. Cancelar con motivo (GP017): las existencias regresan al catálogo
+PUT {{base}}/admin/pedidos/{{nuevaOrden.response.body.datos.idPedido}}/estado
+Content-Type: application/json
+
+{
+  "idEstado": 8,
+  "motivo": "La clienta pidió cancelar"
+}
+
+### 75. Cerrar sesión
+DELETE {{base}}/sesion
