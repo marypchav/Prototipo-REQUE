@@ -1,0 +1,7 @@
+# Normaliza los finales de línea para que Windows cambios falsos en cada archivo
+* text=auto
+
+# Imágenes: nunca se tocan
+*.png binary
+*.jpg binary
+*.jpeg binary

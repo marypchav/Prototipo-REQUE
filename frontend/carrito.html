@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Carrito | Confecciones Capanni</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body data-requiere="cliente">
+  <header id="encabezado"></header>
+
+  <main>
+    <div class="contenedor">
+      <!-- GP008 Visualizar carrito, GP009 Modificar, GP010 Eliminar, GP020 Costo -->
+      <div class="titulo-admin">
+        <div>
+          <h1>Carrito</h1>
+          <p id="resumenCarrito" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <p class="cargando" id="cargando">Cargando su carrito…</p>
+      <div id="estadoCarrito"></div>
+
+      <div class="compra" id="compra" hidden>
+        <section aria-label="Productos del carrito">
+          <p class="mensaje mensaje-aviso" id="avisoNoDisponibles" hidden>
+            Algunos productos ya no están disponibles. Quítelos o cambie la cantidad para continuar; no se suman al total.
+          </p>
+          <ul class="lineas-carrito" id="lineasCarrito"></ul>
+          <button type="button" class="boton boton-texto" id="vaciarCarrito">Eliminar carrito</button>
+        </section>
+
+        <aside class="caja-resumen" aria-labelledby="tituloTotal">
+          <h2 id="tituloTotal">Total del carrito</h2>
+          <dl class="montos" id="montosCarrito"></dl>
+          <p class="ayuda">El costo de envío se calcula al elegir el método de entrega.</p>
+          <a class="boton boton-principal boton-ancho" href="/orden.html" id="irOrden">Generar orden</a>
+          <a class="boton boton-texto" href="/">Seguir comprando</a>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <dialog id="dialogoVaciar" aria-labelledby="tituloVaciar">
+    <div class="dialogo-cuerpo">
+      <h2 id="tituloVaciar">¿Confirma que desea vaciar su carrito?</h2>
+      <p>Se quitarán todos los productos.</p>
+      <p class="mensaje mensaje-error" id="errorVaciar" role="alert" hidden></p>
+      <div class="dialogo-botones">
+        <button type="button" class="boton boton-secundario" data-cerrar>No</button>
+        <button type="button" class="boton boton-peligro" id="confirmarVaciar">Sí</button>
+      </div>
+    </div>
+  </dialog>
+
+  <footer id="pie"></footer>
+
+  <script src="/js/comun.js"></script>
+  <script src="/js/carrito.js"></script>
+</body>
+</html>

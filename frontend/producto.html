@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Producto | Confecciones Capanni</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <header id="encabezado"></header>
+  <div id="avisoConexion" class="aviso-conexion" role="status" hidden>
+    Se perdió la conexión con el servidor. La información podría estar desactualizada; se refrescará sola al volver la conexión.
+  </div>
+
+  <main>
+    <div class="contenedor">
+      <nav class="migas" aria-label="Ruta">
+        <a href="/" id="volverCatalogo">← Volver al catálogo</a>
+      </nav>
+      <p class="cargando" id="cargando">Cargando el producto…</p>
+      <div id="detalle"></div>
+    </div>
+  </main>
+
+  <footer id="pie"></footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/comun.js"></script>
+  <script src="/js/producto.js"></script>
+</body>
+</html>

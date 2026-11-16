@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registrarse | Confecciones Capanni</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <header id="encabezado"></header>
+
+  <main class="ingreso">
+    <!-- GP001 Registrar cliente -->
+    <form class="tarjeta-form" id="formRegistro" novalidate>
+      <h1>Registrarse</h1>
+      <p class="subtitulo">Todos los campos son obligatorios.</p>
+
+      <div class="mensaje mensaje-error" id="errorRegistro" role="alert" hidden></div>
+
+      <div class="campo">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" autocomplete="name" maxlength="100" required>
+      </div>
+
+      <div class="campo">
+        <label for="correo">Correo electrónico</label>
+        <input type="email" id="correo" autocomplete="email" maxlength="128" required>
+      </div>
+
+      <div class="campo">
+        <label for="telefono">Teléfono</label>
+        <input type="tel" id="telefono" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="8888-8888" required>
+      </div>
+
+      <div class="campo">
+        <label for="contrasena">Contraseña</label>
+        <div class="clave-fila">
+          <input type="password" id="contrasena" autocomplete="new-password" minlength="8" required aria-describedby="ayudaClave">
+          <button type="button" class="boton boton-texto" data-ver-clave="contrasena" aria-pressed="false">Mostrar</button>
+        </div>
+        <p class="ayuda" id="ayudaClave">Mínimo 8 caracteres.</p>
+      </div>
+
+      <button type="submit" class="boton boton-principal boton-ancho" id="botonRegistrar">Crear cuenta</button>
+      <p class="pie-form">¿Ya tiene cuenta? <a href="/cuenta/ingresar.html" id="enlaceIngreso">Iniciar sesión</a></p>
+    </form>
+  </main>
+
+  <footer id="pie"></footer>
+
+  <script src="/js/comun.js"></script>
+  <script src="/js/cuenta-registro.js"></script>
+</body>
+</html>

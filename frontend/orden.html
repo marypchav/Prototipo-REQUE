@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generar orden | Confecciones Capanni</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body data-requiere="cliente">
+  <header id="encabezado"></header>
+
+  <main>
+    <div class="contenedor">
+      <nav class="migas" aria-label="Ruta">
+        <a href="/carrito.html">← Volver al carrito</a>
+      </nav>
+
+      <!-- GP011 Pago, GP012 Entrega, GP013 Comprobante, GP014 Confirmar, GP020 Costo -->
+      <div class="titulo-admin">
+        <div>
+          <h1>Generar orden</h1>
+          <p>Elija cómo recibir y pagar su pedido.</p>
+        </div>
+      </div>
+
+      <p class="cargando" id="cargando">Cargando…</p>
+      <div id="estadoOrden"></div>
+
+      <form class="compra" id="formOrden" novalidate hidden>
+        <div class="pasos-orden">
+          <p class="mensaje mensaje-error" id="errorOrden" role="alert" tabindex="-1" hidden></p>
+
+          <fieldset class="paso" id="pasoEntrega">
+            <legend>Método de entrega</legend>
+            <div class="opciones" id="opcionesEntrega"></div>
+          </fieldset>
+
+          <fieldset class="paso" id="pasoDireccion" hidden>
+            <legend>Dirección de envío</legend>
+            <div class="opciones" id="opcionesDireccion"></div>
+            <a class="boton boton-secundario boton-pequeno" id="agregarDireccion" href="/cuenta/direcciones.html?volver=/orden.html&amp;nueva=1">Agregar dirección</a>
+          </fieldset>
+
+          <fieldset class="paso" id="pasoPago">
+            <legend>Método de pago</legend>
+            <div class="opciones" id="opcionesPago"></div>
+          </fieldset>
+
+          <fieldset class="paso" id="pasoComprobante" hidden>
+            <legend>Comprobante de SINPE Móvil</legend>
+            <p class="ayuda">Haga el SINPE Móvil al número <span class="relleno">Aquí va el número de SINPE Móvil</span> a nombre de <span class="relleno">Aquí va el nombre del titular</span> y adjunte la imagen del comprobante. PNG o JPG, máximo 5 MB.</p>
+            <div class="comprobante-vista" id="vistaComprobante" hidden></div>
+            <div class="foto-botones">
+              <button type="button" class="boton boton-secundario" data-abrir="comprobanteCamara">Tomar foto</button>
+              <button type="button" class="boton boton-secundario" data-abrir="comprobanteGaleria">Elegir de la galería</button>
+            </div>
+            <input type="file" id="comprobanteCamara" accept="image/png,image/jpeg" capture="environment" hidden>
+            <input type="file" id="comprobanteGaleria" accept="image/png,image/jpeg" hidden>
+          </fieldset>
+        </div>
+
+        <aside class="caja-resumen" aria-labelledby="tituloResumenOrden">
+          <h2 id="tituloResumenOrden">Resumen de la orden</h2>
+          <ul class="resumen-productos" id="resumenProductos"></ul>
+          <dl class="montos" id="montosOrden"></dl>
+          <button type="submit" class="boton boton-principal boton-ancho" id="confirmarOrden">Confirmar orden</button>
+          <p class="ayuda">La orden queda pendiente hasta que Capanni revise su pago y la confirme.</p>
+        </aside>
+      </form>
+    </div>
+  </main>
+
+  <footer id="pie"></footer>
+
+  <script src="/js/comun.js"></script>
+  <script src="/js/orden.js"></script>
+</body>
+</html>

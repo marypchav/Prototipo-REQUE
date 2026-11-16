@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo | Confecciones Capanni</title>
+  <meta name="description" content="Catálogo en línea de Confecciones Capanni.">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <header id="encabezado"></header>
+  <div id="avisoConexion" class="aviso-conexion" role="status" hidden>
+    Se perdió la conexión con el servidor. La información podría estar desactualizada; se refrescará sola al volver la conexión.
+  </div>
+
+  <main>
+    <section class="portada">
+      <div class="contenedor">
+        <h1>Catálogo</h1>
+        <p>Aquí va una frase corta de bienvenida de Confecciones Capanni.</p>
+      </div>
+    </section>
+
+    <div class="contenedor">
+      <!-- CP006 y CP007: filtros por categoría y talla, combinables -->
+      <section class="filtros" aria-label="Filtros del catálogo" id="filtros" hidden>
+        <div class="filtro-grupo">
+          <p class="filtro-titulo" id="tituloCategorias">Categoría</p>
+          <div class="fichas" id="fichasCategorias" role="group" aria-labelledby="tituloCategorias"></div>
+        </div>
+        <div class="filtro-grupo">
+          <p class="filtro-titulo" id="tituloTallas">Talla</p>
+          <div class="tallas-opciones" id="opcionesTallas" role="group" aria-labelledby="tituloTallas"></div>
+        </div>
+        <div class="filtros-pie">
+          <span id="conteo" aria-live="polite"></span>
+          <button type="button" class="boton boton-texto" id="limpiarFiltros" hidden>Limpiar filtros</button>
+        </div>
+      </section>
+
+      <p class="cargando" id="cargando">Cargando el catálogo…</p>
+      <div id="estadoCatalogo"></div>
+      <ul class="rejilla" id="rejilla" aria-label="Productos"></ul>
+    </div>
+  </main>
+
+  <footer id="pie"></footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/comun.js"></script>
+  <script src="/js/catalogo.js"></script>
+</body>
+</html>
